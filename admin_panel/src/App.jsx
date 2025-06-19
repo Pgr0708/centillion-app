@@ -10,6 +10,7 @@ import MusicsPage from './pages/MusicsPage';
 import QuotesPage from './pages/QuotesPage';
 import AuthorsPage from './pages/AuthorsPage';
 import PlaylistPage from './pages/PlaylistPage';
+import SpecialistPage from './pages/SpecialistPage';
 import PrivateRoute from './components/PrivateRoute'; 
 
 const App = () => {
@@ -47,7 +48,8 @@ const App = () => {
           <Route path='/musics' element={<MusicsPage />} />
           <Route path='/playlists' element={<PlaylistPage />} />
           <Route path='/quotes' element={<QuotesPage />} />
-          <Route path='/authors' element={<AuthorsPage />} />
+          {/* <Route path='/authors' element={<AuthorsPage />} /> */}
+          <Route path='/specialists' element={<SpecialistPage />} /> 
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </>

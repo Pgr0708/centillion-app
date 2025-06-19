@@ -1,36 +1,39 @@
-import React, { useEffect, useState , useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import MusicForm from '../components/AddMusicForm';
-import { BASE_URL } from '../constants'; 
+import { BASE_URL } from '../constants';
 
 
 const LibraryTable = () => {
   const [libraries, setLibraries] = useState([]);
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState('title');
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingMusic, setEditingMusic] = useState(null);
-const handleEditClick = async (id) => {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/music/${id}`);
-    const data = await res.json();
-    setEditingMusic(data);  
-    setShowForm(true);
-  } catch (err) {
-    alert('Failed to fetch music details');
-  }
-};
+
+
+
+  const handleEditClick = async (id) => {     
+    try {
+      const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/music/${id}`);
+      const data = await res.json();
+      setEditingMusic(data);
+      setShowForm(true);
+    } catch (err) {
+      alert('Failed to fetch music details');
+    }
+  };
 
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure to delete?')) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/music/${id}`, { method: 'DELETE' });
-      setLibraries(prev => prev.filter((item) => item.music_id !== id));
+      await fetch(` ${import.meta.env.VITE_BASE_URL}/music/${id}`, { method: 'DELETE' });
+      setLibraries(prev => prev.filter((item) => item.id !== id));
     } catch (err) {
       alert("Failed to delete!");
     }
@@ -38,7 +41,7 @@ const handleEditClick = async (id) => {
 
   const fetchData = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/music`);
+      const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/music`);
       if (!res.ok) throw new Error('Failed to fetch data');
       const data = await res.json();
       setLibraries(data);
@@ -54,22 +57,28 @@ const handleEditClick = async (id) => {
   }, []);
 
   const handleToggle = async (id, field) => {
-    const currentItem = libraries.find(item => item.music_id === id);
+    const currentItem = libraries.find(item => item.id === id);
 
     let updatedField = {};
-    if (field === 'type') {
-      const newType = currentItem.type === 'premium' ? 'free' : 'premium';
-      updatedField = { type: newType };
-    } else if (field === 'isFeatured') {
-      const newFeatured = currentItem.isFeatured === '1' ? '0' : '1';
-      updatedField = { isFeatured: newFeatured };
-    } else if (field === 'isHidden') {
-      const newHidden = currentItem.isHidden === '1' ? '0' : '1';
-      updatedField = { isHidden: newHidden };
+    if (field === 'is_premium') {
+      const newPremium = currentItem.is_premium === 1 || currentItem.is_premium === '1' || currentItem.is_premium === true ? 0 : 1;
+      updatedField = { is_premium: newPremium };
+    } else if (field === 'is_featured') {
+      const newFeatured = currentItem.is_featured === '1' ? '0' : '1';
+      updatedField = { is_featured: newFeatured };
+    } else if (field === 'is_hidden') {
+      const newHidden = currentItem.is_hidden === '1' ? '0' : '1';
+      updatedField = { is_hidden: newHidden };
+    } else if (field === 'infinite') {
+      const newInfinite = currentItem.infinite === '1' || currentItem.infinite === 1 || currentItem.infinite === true ? '0' : '1';
+      updatedField = { infinite: newInfinite };
+    } else if (field === 'is_recommended') {
+      const newRecommended = currentItem.is_recommended === '1' || currentItem.is_recommended === 1 || currentItem.is_recommended === true ? '0' : '1';
+      updatedField = { is_recommended: newRecommended };
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/music/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/music/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -77,17 +86,18 @@ const handleEditClick = async (id) => {
         body: JSON.stringify(updatedField)
       });
 
-      const data = await res.json();
+      if (!res.ok) throw new Error('Update failed');
 
       setLibraries(prev =>
         prev.map(item =>
-          item.music_id === id ? { ...item, ...updatedField } : item
+          item.id === id ? { ...item, ...updatedField } : item
         )
       );
     } catch (error) {
       alert('Toggle update failed');
     }
   };
+
 
   const filteredData = libraries
     .filter((lib) => lib.title?.toLowerCase().includes(search.toLowerCase()))
@@ -110,9 +120,12 @@ const handleEditClick = async (id) => {
             onClose={() => {
               setShowForm(false);
               setEditingMusic(null);
-              fetchData(); 
+              fetchData();
             }}
             existingData={editingMusic}
+            setShowForm={setShowForm}
+            setEditingMusic={setEditingMusic}
+            refreshList={fetchData}
           />
         </div>
       )}
@@ -157,17 +170,20 @@ const handleEditClick = async (id) => {
             <th className="px-4 py-3 border">Image</th>
             <th className="px-4 py-3 border">Title</th>
             <th className="px-4 py-3 border">Audio</th>
+            <th className="px-4 py-3 border">Recommended</th>
             <th className="px-4 py-3 border">Hidden</th>
             <th className="px-4 py-3 border">Premium</th>
             <th className="px-4 py-3 border">Featured</th>
+            <th className="px-4 py-3 border">Infinite</th>
             <th className="px-4 py-3 border">Actions</th>
           </tr>
         </thead>
         <tbody>
           {paginatedData.map((lib) => (
-            <tr key={lib.music_id} className="hover:bg-gray-50">
+            console.log("+====================================================================="),
+            <tr key={lib.id} className="hover:bg-gray-50">
               <td className="px-4 py-3 border">
-                <img src={lib.horizontal_image} alt={lib.title} className="w-20 h-12 object-cover" />
+                <img src={lib.image} alt={lib.title} className="w-20 h-12 object-cover round-md" />
               </td>
               <td className="px-4 py-3 border font-medium">{lib.title}</td>
               <td className="px-4 py-3 border">
@@ -175,30 +191,45 @@ const handleEditClick = async (id) => {
               </td>
               <td className="px-4 py-3 border">
                 <ToggleButton
-                  value={lib.isHidden === '1'}
-                  onToggle={() => handleToggle(lib.music_id, 'isHidden')}
+                  value={lib.is_recommended === 1 || lib.is_recommended === '1' || lib.is_recommended === true}
+                  onToggle={() => handleToggle(lib.id, 'is_recommended')}
                 />
               </td>
 
               <td className="px-4 py-3 border">
                 <ToggleButton
-                  value={lib.type === 'premium'}
-                  onToggle={() => handleToggle(lib.music_id, 'type')}
+                  value={lib.is_hidden === 1 || lib.is_hidden === '1' || lib.is_hidden === true}
+                  onToggle={() => handleToggle(lib.id, 'is_hidden')}
+                />
+              </td>
+
+              <td className="px-4 py-3 border">
+                <ToggleButton
+                  value={lib.is_premium === 1 || lib.is_premium === '1' || lib.is_premium === true}
+                  onToggle={() => handleToggle(lib.id, 'is_premium')}
+                />
+
+              </td>
+              <td className="px-4 py-3 border">
+                <ToggleButton
+                  value={lib.is_featured === 1 || lib.is_featured === '1'}
+                  onToggle={() => handleToggle(lib.id, 'is_featured')}
                 />
               </td>
               <td className="px-4 py-3 border">
                 <ToggleButton
-                  value={lib.isFeatured === 1 || lib.isFeatured === '1'}
-                  onToggle={() => handleToggle(lib.music_id, 'isFeatured')}
+                  value={lib.infinite === 1 || lib.infinite === '1' || lib.infinite === true}
+                  onToggle={() => handleToggle(lib.id, 'infinite')}
                 />
               </td>
+
               <td className="px-4 py-3 border space-x-2">
                 <button className="text-blue-500" onClick={() => {
-                  handleEditClick(lib.music_id)
+                  handleEditClick(lib.id)
                 }}>
                   Edit
                 </button>
-                <button className="text-red-500" onClick={() => handleDelete(lib.music_id)}>
+                <button className="text-red-500" onClick={() => handleDelete(lib.id)}>
                   Delete
                 </button>
               </td>

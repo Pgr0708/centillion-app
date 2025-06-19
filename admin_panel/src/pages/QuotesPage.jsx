@@ -43,18 +43,18 @@ const categories = [
 const QuotesPage = () => {
   const [quotes, setQuotes] = useState([]);
   const [newQuote, setNewQuote] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  // const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredQuotes, setFilteredQuotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   useEffect(() => {
     fetchQuotes();
   }, []);
 
   const fetchQuotes = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/quote`, {
+    const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/quote`, {
       method: 'GET',
     });
     const data = await res.json();
@@ -80,39 +80,61 @@ const QuotesPage = () => {
     setCurrentPage(1);
   };
 
+  // const handleAddQuote = async () => {
+  //   if (!newQuote.trim() || !selectedCategory) return;
+
+  //   const selectedCat = categories.find(c => c.id === selectedCategory);
+
+  //   const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/quote/add`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({
+  //       quote_line: newQuote,
+  //       quote_category_id: selectedCat.id,
+  //       quote_category_name: selectedCat.name,
+  //     }),
+  //   });
+
+  //   if (res.ok) {
+  //     setNewQuote('');
+  //     setSelectedCategory('');
+  //     fetchQuotes();
+  //   } else {
+  //     alert('Failed to add quote');
+  //   }
+  // };
+  
   const handleAddQuote = async () => {
-    if (!newQuote.trim() || !selectedCategory) return;
+  if (!newQuote.trim()) return;
 
-    const selectedCat = categories.find(c => c.id === selectedCategory);
+  const res = await fetch(`${import.meta.env.VITE_BASE_URL}/quote/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      quote_line: newQuote,
+    }),
+  });
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/quote/add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quote_line: newQuote,
-        quote_category_id: selectedCat.id,
-        quote_category_name: selectedCat.name,
-      }),
-    });
+  if (res.ok) {
+    setNewQuote('');
+    setCurrentPage(1);
+    fetchQuotes();
+  } else {
+    alert('Failed to add quote');
+  }
+};
 
-    if (res.ok) {
-      setNewQuote('');
-      setSelectedCategory('');
-      fetchQuotes();
-    } else {
-      alert('Failed to add quote');
-    }
-  };
+  
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this quote?')) return;
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/quote/delete/${id}`, {
+    const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/quote/delete/${id}`, {
       method: 'DELETE',
     });
 
     if (res.ok) {
-      setQuotes(prev => prev.filter(q => q.quote_id !== id));
-      setFilteredQuotes(prev => prev.filter(q => q.quote_id !== id));
+      setQuotes(prev => prev.filter(q => q.id !== id));
+      setFilteredQuotes(prev => prev.filter(q => q.id !== id));
     } else {
       alert('Failed to delete quote');
     }
@@ -128,15 +150,15 @@ const QuotesPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-semibold">Quotes</h2>
-        <div className="flex items-end gap-2 w-1/10">
+<div className="flex flex-wrap items-end gap-3 w-full max-w-3xl">
           <input
             type="text"
             placeholder="New quote"
             value={newQuote}
             onChange={(e) => setNewQuote(e.target.value)}
-            className="border px-3 py-2 rounded"
+            className="border px-3 py-2 rounded w-full sm:w-auto flex-1"
           />
-          <select
+          {/* <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="border px-3 py-2 rounded"
@@ -147,7 +169,7 @@ const QuotesPage = () => {
                 {cat.name}
               </option>
             ))}
-          </select>
+          </select> */}
           <button
             onClick={handleAddQuote}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -201,24 +223,24 @@ const QuotesPage = () => {
           <tr className="bg-gray-100 text-left">
             <th className="border px-4 py-2">ID</th>
             <th className="border px-4 py-2">Quote</th>
-            <th className="border px-4 py-2">Category</th>
+            {/* <th className="border px-4 py-2">Category</th> */}
             <th className="border px-4 py-2">Action</th>
           </tr>
         </thead>
         <tbody>
           {paginatedQuotes.map((quote, index) => (
-            <tr key={quote.quote_id}>
+            <tr key={quote.id}>
               <td className="border px-4 py-2">
                 {(currentPage - 1) * itemsPerPage + index + 1}
               </td>
 
               <td className="border px-4 py-2">{quote.quote_line}</td>
-              <td className="border px-4 py-2">
+              {/* <td className="border px-4 py-2">
                 {quote.quote_category_name}
-              </td>
+              </td> */}
               <td className="border px-4 py-2">
                 <button
-                  onClick={() => handleDelete(quote.quote_id)}
+                  onClick={() => handleDelete(quote.id)}
                   className="text-red-600 hover:underline"
                 >
                   Delete

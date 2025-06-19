@@ -9,13 +9,13 @@ const CategoriesPage = () => {
   const [musics, setMusics] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
   const fetchCategories = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/music_category`)
+    fetch(` ${import.meta.env.VITE_BASE_URL}/music_category`)
       .then((res) => res.json())
       .then((data) => {
         setCategories(data);
@@ -25,7 +25,7 @@ const CategoriesPage = () => {
   };
 
   const fetchMusics = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/music`)
+    fetch(` ${import.meta.env.VITE_BASE_URL}/music`)
       .then((res) => res.json())
       .then((data) => setMusics(data))
       .catch((error) => { });
@@ -54,13 +54,13 @@ const CategoriesPage = () => {
     const confirmed = window.confirm('Are you sure you want to delete this category?');
     if (!confirmed) return;
 
-    fetch(`${import.meta.env.VITE_API_URL}/music_category/${categoryId}`, {
+    fetch(` ${import.meta.env.VITE_BASE_URL}/music_category/${categoryId}`, {
       method: "DELETE",
     })
       .then((res) => res.json())
       .then(() => {
         setCategories((prev) =>
-          prev.filter((cat) => cat.music_category_id !== categoryId)
+          prev.filter((cat) => cat.id !== categoryId)
         );
       })
       .catch((error) => { });
@@ -148,11 +148,15 @@ const CategoriesPage = () => {
           </thead>
           <tbody>
             {paginatedCategories.map((cat, index) => {
-              const categoryId = cat.music_category_id;
+              const categoryId = cat.id;
               const relatedMusics = musics.filter(
-                (music) =>
-                  Array.isArray(music.music_category_id) &&
-                  music.music_category_id.includes(categoryId)
+                (music) => {
+                  const ids = music.music_category_ids
+                    ? music.music_category_ids.split(',').map(Number)
+                    : [];
+
+                  return ids.includes(categoryId);
+                }
               );
 
               return (
@@ -163,7 +167,7 @@ const CategoriesPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       <img
-                        src={cat.horizontal_image}
+                        src={cat.image}
                         alt={cat.title}
                         className="w-20 h-12 object-cover rounded-md"
                       />
@@ -200,11 +204,11 @@ const CategoriesPage = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {relatedMusics.map((music) => (
                               <div
-                                key={music.music_id}
+                                key={music.id}
                                 className="flex items-center space-x-4 bg-white shadow-sm p-3 rounded-md border"
                               >
                                 <img
-                                  src={music.horizontal_image}
+                                  src={music.image}
                                   alt={music.title}
                                   className="w-14 h-14 object-cover rounded"
                                 />
@@ -213,7 +217,7 @@ const CategoriesPage = () => {
                                     {music.title}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    Music ID: {music.music_id}
+                                    Music ID: {music.id}
                                   </p>
                                   <p className="text-xs text-gray-500">
                                     Duration: {music.duration}

@@ -1,14 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import svgr from 'vite-plugin-svgr';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),svgr()],
-  server:{port:5678,server: {
-  proxy: {
-    '/api': 'http://localhost:5678'
-  }
-}}
-})
+  plugins: [react(), tailwindcss()],
+  server: {
+    port: 5678,server: {
+    proxy: {
+      '/api': 'http://localhost:5678'
+    }
+  }}
+});
+

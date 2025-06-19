@@ -15,7 +15,7 @@ const TopicsPage = () => {
   const [selectedTopic, setSelectedTopic] = useState(null);
 
   const fetchTopics = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/topic`)
+    fetch(` ${import.meta.env.VITE_BASE_URL}/topic`)
       .then((res) => res.json())
       .then((data) => {
         setTopics(data);
@@ -36,7 +36,7 @@ const TopicsPage = () => {
       return;
     }
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/music_category`);
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/music_category`);
     const allCategories = await res.json();
     const matched = allCategories.filter((cat) => cat.topic_id === topicId);
 
@@ -59,7 +59,7 @@ const TopicsPage = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/topic/${topicId}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/topic/${topicId}`, {
         method: "DELETE",
       });
 
@@ -75,7 +75,7 @@ const TopicsPage = () => {
     setShowForm(false);
     setSelectedTopic(null);
     fetchTopics();
-  };
+  };  
 
   const filteredTopics = topics.filter((topic) =>
     topic?.title?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -88,6 +88,7 @@ const TopicsPage = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto font-sans">
       {showForm && <TopicForm onClose={handleFormClose} existingData={selectedTopic} />}
+         {console.log("env", import.meta.env.VITE_API_URL)}
 
       <h2 className="text-3xl font-bold text-gray-800 mb-4">Topics</h2>
 
@@ -153,22 +154,22 @@ const TopicsPage = () => {
           <tbody>
             {paginatedTopics.length > 0 ? (
               paginatedTopics.map((topic, index) => (
-                <React.Fragment key={topic.topic_id}>
+                <React.Fragment key={topic.id}>
                   <tr className="hover:bg-gray-50 border-b">
                     <td className="px-6 py-4 font-semibold">
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td className="px-6 py-4">
                       <img
-                        src={topic.horizontal_image}
+                        src={topic.image}
                         alt={topic.title}
                         className="w-20 h-12 object-cover rounded-md"
                       />
-                    </td>
+                    </td>  
                     <td className="px-6 py-4 font-semibold">{topic.title}</td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleCategoryToggle(topic.topic_id)}
+                        onClick={() => handleCategoryToggle(topic.id)}
                         className="text-blue-600 font-semibold hover:underline"
                       >
                         {topic.number_of_categories}
@@ -182,7 +183,7 @@ const TopicsPage = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(topic.topic_id)}
+                        onClick={() => handleDelete(topic.id)}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                       >
                         Delete
@@ -190,7 +191,7 @@ const TopicsPage = () => {
                     </td>
                   </tr>
 
-                  {activeTopicId === topic.topic_id && categories.length > 0 && (
+                  {activeTopicId === topic.id && categories.length > 0 && (
                     <tr className="bg-blue-50">
                       <td colSpan="5" className="px-6 py-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -200,7 +201,7 @@ const TopicsPage = () => {
                               className="flex items-center space-x-4 bg-white shadow-sm p-3 rounded-md border"
                             >
                               <img
-                                src={cat.horizontal_image}
+                                src={cat.image}
                                 alt={cat.title}
                                 className="w-14 h-14 object-cover rounded"
                               />

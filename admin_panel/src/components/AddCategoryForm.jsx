@@ -12,32 +12,28 @@ const CategoryForm = ({ existingData, onClose }) => {
   const [formData, setFormData] = useState({
     title: '',
     topic_id: '',
-    horizontalImage: null,
-    verticalImage: null
+    horizontalImage: null
   });
 
   const [existingFiles, setExistingFiles] = useState({
-    horizontalImage: '',
-    verticalImage: ''
+    horizontalImage: ''
   });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/topic`)
+    fetch(` ${import.meta.env.VITE_BASE_URL}/topic`)
       .then(res => res.json())
       .then(data => setTopics(data))
       .catch(err => { });
-
+    console.log('existingData', existingData);
     if (existingData) {
       setFormData({
         title: existingData.title,
         topic_id: existingData.topic_id || '',
-        horizontalImage: null,
-        verticalImage: null
+        horizontalImage: null
       });
 
       setExistingFiles({
-        horizontalImage: existingData.horizontal_image,
-        verticalImage: existingData.vertical_image
+        horizontalImage: existingData.image,
       });
     }
   }, [existingData]);
@@ -64,10 +60,9 @@ const CategoryForm = ({ existingData, onClose }) => {
     };
 
     compareAndAppend('horizontalImage', existingFiles.horizontalImage);
-    compareAndAppend('verticalImage', existingFiles.verticalImage);
 
     const payload = {
-      music_category_id: existingData?.music_category_id || null, // 👈 Add this
+      music_category_id: existingData?.id || null, // 👈 Add this
       title: formData.title,
       topic_id: formData.topic_id,
       created_at: existingData?.created_at || new Date().toLocaleDateString('en-GB'),
@@ -76,8 +71,8 @@ const CategoryForm = ({ existingData, onClose }) => {
     data.append('musicCategoryData', JSON.stringify(payload));
 
     const url = existingData
-      ? `${import.meta.env.VITE_API_URL}/music_category/update`
-      : `${import.meta.env.VITE_API_URL}/music_category/upload`;
+      ? ` ${import.meta.env.VITE_BASE_URL}/music_category/update`
+      : ` ${import.meta.env.VITE_BASE_URL}/music_category/upload`;
 
     try {
       const res = await fetch(url, {
@@ -128,7 +123,7 @@ const CategoryForm = ({ existingData, onClose }) => {
             >
               <option value="">Select a topic</option>
               {topics.map((topic) => (
-                <option key={topic.topic_id} value={topic.topic_id}>
+                <option key={topic.id} value={topic.id}>
                   {topic.title}
                 </option>
               ))}
@@ -136,7 +131,7 @@ const CategoryForm = ({ existingData, onClose }) => {
           </div>
 
           <div className="mb-4">
-            <label className="block font-medium mb-1">Horizontal Image</label>
+            <label className="block font-medium mb-1">Image</label>
             {existingFiles.horizontalImage && (
               <img
                 src={existingFiles.horizontalImage}
@@ -147,31 +142,14 @@ const CategoryForm = ({ existingData, onClose }) => {
             <input
               type="file"
               name="horizontalImage"
-              accept="image/jpeg, image/jpg"
+              accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required={!existingFiles.horizontalImage}
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block font-medium mb-1">Vertical Image</label>
-            {existingFiles.verticalImage && (
-              <img
-                src={existingFiles.verticalImage}
-                alt="Previous Vertical"
-                className="w-20 h-10 rounded border"
-              />
-            )}
-            <input
-              type="file"
-              name="verticalImage"
-              accept="image/jpeg, image/jpg"
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required={!existingFiles.verticalImage}
-            />
-          </div>
+
 
           <button
             type="submit"

@@ -9,11 +9,49 @@ const PlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [showAddMusicModal, setShowAddMusicModal] = useState(false);
+  const [topics, setTopics] = useState([]);
+  const [specialists, setSpecialists] = useState([]);
+  const [filteredSpecialists, setFilteredSpecialists] = useState([]);
+
+  const ToggleButton = ({ value, onToggle }) => (
+    <div
+      onClick={onToggle}
+      className={`w-12 h-6 rounded-full cursor-pointer transition duration-300 ${value ? 'bg-green-500' : 'bg-gray-400'} relative`}
+    >
+      <div
+        className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${value ? 'translate-x-6' : 'translate-x-1'}`}
+      ></div>
+    </div>
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [topicRes, specialistRes] = await Promise.all([
+          fetch(` ${import.meta.env.VITE_BASE_URL}/topic`),
+          fetch(` ${import.meta.env.VITE_BASE_URL}/specialist`),
+        ]);
+        if (!topicRes.ok || !specialistRes.ok) throw new Error('API error');
+
+        const topicData = await topicRes.json();
+        const specialistData = await specialistRes.json();
+
+        setTopics(topicData);
+        setSpecialists(specialistData);
+      } catch (err) {
+        console.error('Failed to fetch topics or specialists:', err);
+        setTopics([]);
+        setSpecialists([]);
+      }
+    };
+
+    fetchData();
+  }, []);
 
 
   useEffect(() => {
@@ -21,7 +59,7 @@ const PlaylistPage = () => {
   }, []);
 
   const fetchPlaylists = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/playlist`)
+    fetch(` ${import.meta.env.VITE_BASE_URL}/playlist`)
       .then((res) => res.json())
       .then((data) => setPlaylists(data))
       .catch((err) => { });
@@ -32,7 +70,7 @@ const PlaylistPage = () => {
     const confirmed = window.confirm('Are you sure you want to delete this playlist?');
     if (!confirmed) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/playlist/${playlistId}`, {
+      const res = await fetch(` ${import.meta.env.VITE_BASE_URL}/playlist/${playlistId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playlist_id: playlistId }),
@@ -40,7 +78,7 @@ const PlaylistPage = () => {
 
       const result = await res.json();
 
-      setPlaylists((prev) => prev.filter((p) => p.playlist_id !== playlistId));
+      setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
     } catch (err) {
       alert('Error deleting playlist');
     }
@@ -124,6 +162,7 @@ const PlaylistPage = () => {
               <th className="px-6 py-3 font-bold">Image</th>
               <th className="px-6 py-3 font-bold">Playlist Title</th>
               <th className="px-6 py-3 font-bold">Number of musics</th>
+              <th className="px-6 py-3 font-bold">Infinite</th>
               <th className="px-6 py-3 font-bold">Actions</th>
             </tr>
           </thead>
@@ -140,18 +179,56 @@ const PlaylistPage = () => {
                   </td>
                   <td className="px-6 py-4">
                     <img
-                      src={`${import.meta.env.VITE_API_URL}/images/${playlist.horizontal_image}`}
+                      src={` ${import.meta.env.VITE_BASE_URL}/images/${playlist.image}`}
                       alt={playlist.title}
                       className="w-20 h-12 object-cover rounded-md"
                     />
                   </td>
                   <td className="px-6 py-4">{playlist.title}</td>
                   <td className="px-6 py-4">{playlist.no_of_musics}</td>
+                  <td className="px-6 py-4">
+                    <ToggleButton
+                      value={!!playlist.infinite} // Force boolean
+                      onToggle={async () => {
+                        try {
+                          const updatedValue = !playlist.infinite;
+                          const res = await fetch( ` ${import.meta.env.VITE_BASE_URL}/playlist/infinite`, {
+                            method: 'PATCH',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              playlist_id: playlist.id,
+                              infinite: updatedValue,
+                            }),
+                          });
+
+                          if (res.ok) {
+                            setPlaylists((prev) =>
+                              prev.map((p) =>
+                                p.id === playlist.id
+                                  ? { ...p, infinite: updatedValue }
+                                  : p
+                              )
+                            );
+                          } else {
+                            alert('Failed to update infinite status');
+                          }
+                        } catch (err) {
+                          console.error(err);
+                          alert('Error updating infinite status');
+                        }
+                      }}
+                    />
+                  </td>
+
+
                   <td className="px-6 py-4 space-x-2">
                     <button
                       className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded"
                       onClick={() => {
                         setSelectedPlaylist(playlist);
+                        console.log(playlist);
                         setShowForm(true);
                       }}
                     >
@@ -159,7 +236,7 @@ const PlaylistPage = () => {
                     </button>
                     <button
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                      onClick={() => handleDelete(playlist.playlist_id)}
+                      onClick={() => handleDelete(playlist.id)}
                     >
                       Delete
                     </button>
@@ -207,8 +284,8 @@ const PlaylistPage = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-start pt-20 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl relative mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-start pt-10 z-50 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl relative mx-4 my-10 overflow-y-auto max-h-[90vh]">
             <PlaylistForm
               existingData={selectedPlaylist}
               onClose={() => {

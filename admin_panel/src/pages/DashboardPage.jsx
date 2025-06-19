@@ -10,13 +10,14 @@ const DashboardPage = () => {
     topics: 0,
     quotes: 0,
     playlists: 0,
+    specialists: 0,
   });
 
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/data`, {
+        const res = await fetch(`${import.meta.env.VITE_BASE_URL}/data`, {
           method: 'POST'
         });
         const data = await res.json();
@@ -27,6 +28,7 @@ const DashboardPage = () => {
           topics: data.topic || 0,
           quotes: data.quote || 0,
           playlists: data.playlist || 0,
+          specialists: data.specialist || 0,
         });
       } catch (error) {
       }
@@ -62,6 +64,10 @@ const DashboardPage = () => {
         <Link to="/playlists" className="bg-pink-500 text-white rounded-lg p-6 shadow-lg hover:bg-pink-600 transition">
           <h2 className="text-2xl font-semibold">Playlists</h2>
           <p className="text-lg mt-2">{counts.playlists} Items</p>
+        </Link>
+                <Link to="/specialists" className="bg-pink-500 text-white rounded-lg p-6 shadow-lg hover:bg-pink-600 transition">
+          <h2 className="text-2xl font-semibold">Specialists</h2>
+          <p className="text-lg mt-2">{counts.specialists} Items</p>
         </Link>
       </div>
     </div>

@@ -46,16 +46,24 @@ const DrawerWithNavigation = () => {
         tabIndex="-1"
         aria-labelledby="drawer-navigation-label"
       >
-        <h5 id="drawer-navigation-label" className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Meditations</h5>
+        <h5 id="drawer-navigation-label" className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Meditation00</h5>
         <div className="py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
+
             {navItem('dashboard', 'Dashboard', MdOutlineDashboard, MdDashboard, handleClick)}
             {navItem('topics', 'Topics', MdOutlineTopic, MdTopic, handleClick)}
+    
             {navItem('categories', 'Categories', MdOutlineCategory, MdCategory, handleClick)}
             {navItem('musics', 'Musics', IoMusicalNotesOutline, IoMusicalNotesSharp, handleClick)}
             {navItem('playlists', 'Playlists', BsChatRightQuote, BsChatRightQuoteFill, handleClick)}
-            {navItem('authors', 'Authors', HiOutlineUsers, HiUsers, handleClick)}
+
+            {/* {navItem('authors', 'Authors', HiOutlineUsers, HiUsers, handleClick)} */}
             {navItem('quotes', 'Quotes', BsChatRightQuote, BsChatRightQuoteFill, handleClick)}
+
+                                    {navItem('specialists', 'Specialists', HiOutlineUsers, HiUsers, handleClick)}
+
+
+
           </ul>
         </div>
       </div>
