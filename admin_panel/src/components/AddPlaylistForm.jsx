@@ -781,12 +781,13 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
 
 
   const [formData, setFormData] = useState({
-    title: '',
-    horizontal_image: null
+    title1: '', title2: '',
+    image_name1: null,image_name2: null,
   });
 
   const [existingFiles, setExistingFiles] = useState({
-    horizontal_image: ''
+    image_name1: '',
+    image_name2: '',
   });
 
   // Fetch topics and specialists on mount
@@ -837,12 +838,12 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
         console.log('Existing Data:', existingData);
     if (existingData && topics.length > 0 && specialists.length > 0) {
       setFormData({
-        title: existingData.title || '',
-        horizontal_image: null
+        title1: existingData.title1 || '',title2: existingData.title2 || '',
+        image_name1: null,image_name2: null,
       });
 
       setExistingFiles({
-        horizontal_image: existingData.image_name || ''
+        image_name1: existingData.image_name1 || '',image_name2: existingData.image_name2 || '',
       });
 
       const foundTopic = topics.find(
@@ -897,7 +898,9 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
   }
 };
 
-    data.append('title', formData.title);
+    data.append('title1', formData.title1);
+        data.append('title2', formData.title2);
+
     if (selectedTopic) data.append('topic_id', selectedTopic.id);
     if (selectedSpecialist) data.append('specialist_id', selectedSpecialist);
 
@@ -905,7 +908,8 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
       data.append('playlist_id', existingData.id);
     }
 
-    compareAndAppend('horizontal_image', existingFiles.horizontal_image);
+    compareAndAppend('image_name1', existingFiles.image_name1);
+    compareAndAppend('image_name2',existingFiles.image_name2);
     console.log('================== Data:', data);
     try {
       const url = existingData
@@ -946,13 +950,24 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 text-gray-800">
         {/* Title */}
         <div>
-          <label className="block font-semibold mb-1">Playlist Title</label>
+          <label className="block font-semibold mb-1">Title 1</label>
           <input
             type="text"
-            name="title"
-            value={formData.title}
+            name="title1"
+            value={formData.title1}
             onChange={handleInputChange}
             required
+            className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
+          />
+        </div>
+
+                <div>
+          <label className="block font-semibold mb-1">Title 2</label>
+          <input
+            type="text"
+            name="title2"
+            value={formData.title2}
+            onChange={handleInputChange}
             className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
           />
         </div>
@@ -968,7 +983,7 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
           <option value="">None</option>
           {topics.map((topic) => (
             <option key={topic.id} value={topic.id}>
-              {topic.title}
+              {topic.title1}
             </option>
           ))}
         </select>
@@ -1001,7 +1016,7 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
           <option value="">None</option>
           {filteredSpecialists.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name}
+              {s.title1}
             </option>
           ))}
         </select>
@@ -1009,20 +1024,38 @@ const AddPlaylistForm = ({ onClose, existingData, onUpdate }) => {
 
         {/* Horizontal Image */}
         <div>
-          <label className="block font-semibold mb-1">Image</label>
-          {existingFiles.horizontal_image && (
+          <label className="block font-semibold mb-1">Image 1</label>
+          {existingFiles.image_name1 && (
             <img
-              src={` ${import.meta.env.VITE_BASE_URL}/images/${existingFiles.horizontal_image}`}
+              src={` ${import.meta.env.VITE_BASE_URL}/images/${existingFiles.image_name1}`}
               alt="Previous Horizontal"
               className="w-32 h-16 object-cover rounded border mb-2"
             />
           )}
           <input
             type="file"
-            name="horizontal_image"
+            name="image_name1"
             onChange={handleFileChange}
             accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
-            required={!existingFiles.horizontal_image}
+            required={!existingFiles.image_name1}
+            className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
+          />
+        </div>
+
+                <div>
+          <label className="block font-semibold mb-1">Image 2</label>
+          {existingFiles.image_name2 && (
+            <img
+              src={` ${import.meta.env.VITE_BASE_URL}/images/${existingFiles.image_name2}`}
+              alt="Previous Horizontal"
+              className="w-32 h-16 object-cover rounded border mb-2"
+            />
+          )}
+          <input
+            type="file"
+            name="image_name2"
+            onChange={handleFileChange}
+            accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
             className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
           />
         </div>

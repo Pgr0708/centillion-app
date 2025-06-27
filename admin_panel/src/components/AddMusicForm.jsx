@@ -8,18 +8,18 @@ const stripUUID = (urlOrName) => {
   return parts.length > 1 ? parts.slice(1).join('_') : name;
 };
 
-const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refreshList }) => {
+const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic, refreshList }) => {
   const [topics, setTopics] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
+    title1: '', title2: '',
     sound: null,
     duration: '',
     type: 'free',
     isFeatured: false,
-    horizontal_image: null,
+    image_name1: null, image_name2: null,
     description: '',
     createdAt: '',
     specialist_id: null,
@@ -29,12 +29,12 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
 
   const resetForm = () => {
     setFormData({
-      title: '',
+      title1: '', title2: '',
       sound: null,
       duration: '',
       type: 'free',
       isFeatured: false,
-      horizontal_image: null,
+      image_name1: null,image_name2: null,     
       description: '',
       createdAt: '',
       specialist_id: null,
@@ -43,7 +43,7 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
     });
     setSelectedTopic(null);
     setSelectedCategories([]);
-    setExistingFiles({ sound: '', horizontal_image: '' });
+    setExistingFiles({ sound: '', image_name1: '', image_name2: '' });
   };
 
 
@@ -68,7 +68,8 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
 
   const [existingFiles, setExistingFiles] = useState({
     sound: '',
-    horizontal_image: ''
+    image_name1: '',
+    image_name2: ''
   });
 
   const isEdit = !!existingData;
@@ -78,13 +79,14 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
     console.log('Existing data:', existingData);
     if (existingData) {
       setFormData({
-        title: existingData.title,
+        title1: existingData.title1,
+        title2: existingData.title2 || '',
         duration: existingData.duration,
         description: existingData.description,
         type: existingData.is_premium ? 'premium' : 'free',
         isFeatured: existingData.is_featured,
         sound: null,
-        horizontal_image: null,
+        image_name1: null, image_name2: null,
         specialist_id: existingData.specialist_id || null, // ✅ set it
         isHidden: existingData.is_hidden || 0,
         isInfinite: existingData.infinite || 0,
@@ -93,7 +95,8 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
 
       setExistingFiles({
         sound: existingData.sound,
-        horizontal_image: existingData.image,
+        image_name1: existingData.image_name1,
+        image_name2: existingData.image_name2 || '',
       });
 
       setSelectedTopic({ topic_id: existingData.topic_id });
@@ -182,7 +185,9 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
       }
     };
     compareAndAppend('sound', existingFiles.sound);
-    compareAndAppend('horizontal_image', existingFiles.horizontal_image);
+    compareAndAppend('image_name1', existingFiles.image_name1);
+    compareAndAppend('image_name2', existingFiles.image_name2);
+
 
     const musicPayload = {
       ...formData,
@@ -212,64 +217,64 @@ const MusicForm = ({ onClose, existingData, setShowForm, setEditingMusic,refresh
       alert("Error saving music");
     }
   };
-const handleContinue = async () => {
-  const data = new FormData();
+  const handleContinue = async () => {
+    const data = new FormData();
 
-  const compareAndAppend = (field, existingUrl) => {
-    const file = formData[field];
-    if (file && stripUUID(file.name) !== stripUUID(existingUrl)) {
-      data.append(field, file);
+    const compareAndAppend = (field, existingUrl) => {
+      const file = formData[field];
+      if (file && stripUUID(file.name) !== stripUUID(existingUrl)) {
+        data.append(field, file);
+      }
+    };
+
+    compareAndAppend('sound', existingFiles.sound);
+    compareAndAppend('image_name1', existingFiles.image_name1);
+    compareAndAppend('image_name2', existingFiles.image_name2);
+    const musicPayload = {
+      ...formData,
+      music_topic_id: selectedTopic?.topic_id,
+      music_category_id: selectedCategories,
+      created_at: new Date().toLocaleDateString("en-GB"),
+      music_id: null,
+      isHidden: formData.isHidden || 0,
+      isInfinite: formData.isInfinite || 0,
+    };
+
+    data.append('musicData', JSON.stringify(musicPayload));
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/music/upload`, {
+        method: 'POST',
+        body: data,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || 'Upload failed');
+      }
+
+      alert("Music saved!");
+
+      if (typeof refreshList === 'function') {
+        refreshList(); // ✅ optional: refresh list in parent if needed
+      }
+
+      // ✅ Wait until after upload is fully done to reset form state
+      flushSync(() => {
+        setShowForm(false);
+        setEditingMusic(null);
+      });
+
+      // ✅ Delay slightly to allow re-render, then show new form
+      setTimeout(() => {
+        setShowForm(true);
+      }, 50);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save music");
     }
   };
-
-  compareAndAppend('sound', existingFiles.sound);
-  compareAndAppend('horizontal_image', existingFiles.horizontal_image);
-
-  const musicPayload = {
-    ...formData,
-    music_topic_id: selectedTopic?.topic_id,
-    music_category_id: selectedCategories,
-    created_at: new Date().toLocaleDateString("en-GB"),
-    music_id: null,
-    isHidden: formData.isHidden || 0,
-    isInfinite: formData.isInfinite || 0,
-  };
-
-  data.append('musicData', JSON.stringify(musicPayload));
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/music/upload`, {
-      method: 'POST',
-      body: data,
-    });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      throw new Error(result.message || 'Upload failed');
-    }
-
-    alert("Music saved!");
-
-    if (typeof refreshList === 'function') {
-      refreshList(); // ✅ optional: refresh list in parent if needed
-    }
-
-    // ✅ Wait until after upload is fully done to reset form state
-    flushSync(() => {
-      setShowForm(false);
-      setEditingMusic(null);
-    });
-
-    // ✅ Delay slightly to allow re-render, then show new form
-    setTimeout(() => {
-      setShowForm(true);
-    }, 50);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to save music");
-  }
-};
 
 
   return (
@@ -281,13 +286,23 @@ const handleContinue = async () => {
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-800">
         <div>
-          <label className="block font-semibold mb-1">Music Title</label>
+          <label className="block font-semibold mb-1"> Title 1</label>
           <input
             type="text"
-            name="title"
-            value={formData.title}
+            name="title1"
+            value={formData.title1}
             onChange={handleInputChange}
             required
+            className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Title 2 (optional)</label>
+          <input
+            type="text"
+            name="title2"
+            value={formData.title2}
+            onChange={handleInputChange}
             className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
           />
         </div>
@@ -308,7 +323,7 @@ const handleContinue = async () => {
             <option value="">Select Topic</option>
             {topics.map((topic) => (
               <option key={topic.id} value={topic.id}>
-                {topic.title}
+                {topic.title1}
               </option>
             ))}
           </select>
@@ -338,7 +353,7 @@ const handleContinue = async () => {
                       });
                     }}
                   />
-                  <span>{cat.title}</span>
+                  <span>{cat.title1}</span>
                 </label>
               );
             })}
@@ -450,23 +465,42 @@ const handleContinue = async () => {
 
 
         <div>
-          <label className="block font-semibold mb-1"> Image</label>
-          {existingFiles.horizontal_image && (
+          <label className="block font-semibold mb-1"> Image 1</label>
+          {existingFiles.image_name1 && (
             <img
-              src={existingFiles.horizontal_image}
+              src={existingFiles.image_name1 ? `${import.meta.env.VITE_BASE_URL}/images/${existingFiles.image_name1}` : ''}
               alt="Previous Horizontal"
               className="w-20 h-10 rounded border"
             />
           )}
           <input
             type="file"
-            name="horizontal_image"
+            name="image_name1"
             onChange={handleFileChange}
             accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
-            required={!existingFiles.horizontal_image}
+            required={!existingFiles.image_name1}
             className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
           />
         </div>
+
+        <div>
+          <label className="block font-semibold mb-1">Image 2 (optional)</label>
+          {existingFiles.image_name2 && (
+            <img
+              src={existingFiles.image_name2 ? `${import.meta.env.VITE_BASE_URL}/images/${existingFiles.image_name2}` : ''}
+              alt="Previous Image 2"
+              className="w-20 h-10 rounded border mb-2"
+            />
+          )}
+          <input
+            type="file"
+            name="image_name2"
+            onChange={handleFileChange}
+            accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
+            className="p-3 border border-gray-300 rounded-md shadow-sm w-full"
+          />
+        </div>
+
         <div>
           <label className="block font-medium mb-1">Select Specialist</label>
           <select
@@ -482,7 +516,7 @@ const handleContinue = async () => {
             <option value="">Select Specialist</option>
             {availableSpecialists.map((specialist) => (
               <option key={specialist.id} value={specialist.id}>
-                {specialist.name}
+                {specialist.title1}
               </option>
             ))}
           </select>

@@ -26,7 +26,7 @@ const PlaylistPage = () => {
       <div
         className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${value ? 'translate-x-6' : 'translate-x-1'}`}
       ></div>
-    </div>
+    </div> 
   );
 
   useEffect(() => {
@@ -85,7 +85,7 @@ const PlaylistPage = () => {
   };
 
   const filteredPlaylists = playlists.filter((playlist) =>
-    playlist.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    playlist.title1?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const safeItemsPerPage = itemsPerPage || 1;
@@ -179,12 +179,12 @@ const PlaylistPage = () => {
                   </td>
                   <td className="px-6 py-4">
                     <img
-                      src={` ${import.meta.env.VITE_BASE_URL}/images/${playlist.image}`}
-                      alt={playlist.title}
+                      src={` ${import.meta.env.VITE_BASE_URL}/images/${playlist.image_name1}`}
+                      alt={playlist.title1}
                       className="w-20 h-12 object-cover rounded-md"
                     />
                   </td>
-                  <td className="px-6 py-4">{playlist.title}</td>
+                  <td className="px-6 py-4">{playlist.title1}</td>
                   <td className="px-6 py-4">{playlist.no_of_musics}</td>
                   <td className="px-6 py-4">
                     <ToggleButton

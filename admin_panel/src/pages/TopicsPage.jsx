@@ -75,10 +75,10 @@ const TopicsPage = () => {
     setShowForm(false);
     setSelectedTopic(null);
     fetchTopics();
-  };  
+  };
 
   const filteredTopics = topics.filter((topic) =>
-    topic?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    topic?.title1?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.max(Math.ceil(filteredTopics.length / itemsPerPage), 1);
@@ -88,7 +88,7 @@ const TopicsPage = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto font-sans">
       {showForm && <TopicForm onClose={handleFormClose} existingData={selectedTopic} />}
-         {console.log("env", import.meta.env.VITE_API_URL)}
+      {console.log("env", import.meta.env.VITE_API_URL)}
 
       <h2 className="text-3xl font-bold text-gray-800 mb-4">Topics</h2>
 
@@ -161,12 +161,12 @@ const TopicsPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       <img
-                        src={topic.image}
-                        alt={topic.title}
+                        src={topic.image_name1}
+                        alt={topic.title1}
                         className="w-20 h-12 object-cover rounded-md"
                       />
-                    </td>  
-                    <td className="px-6 py-4 font-semibold">{topic.title}</td>
+                    </td>
+                    <td className="px-6 py-4 font-semibold">{topic.title1}</td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleCategoryToggle(topic.id)}
@@ -197,18 +197,18 @@ const TopicsPage = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {categories.map((cat) => (
                             <div
-                              key={cat.music_category_id}
+                              key={cat.id}
                               className="flex items-center space-x-4 bg-white shadow-sm p-3 rounded-md border"
                             >
                               <img
-                                src={cat.image}
-                                alt={cat.title}
+                                src={cat.image_name1}
+                                alt={cat.title1}
                                 className="w-14 h-14 object-cover rounded"
                               />
                               <div>
-                                <p className="font-semibold text-gray-800">{cat.title}</p>
+                                <p className="font-semibold text-gray-800">{cat.title1}</p>
                                 <p className="text-xs text-gray-500">
-                                  Category ID: {cat.music_category_id}
+                                  Category ID: {cat.id}
                                 </p>
                               </div>
                             </div>

@@ -67,7 +67,7 @@ const CategoriesPage = () => {
   };
 
   const filteredCategories = categories.filter((cat) =>
-    cat.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    cat.title1?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -167,12 +167,12 @@ const CategoriesPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       <img
-                        src={cat.image}
-                        alt={cat.title}
+                        src={cat.image_name1}
+                        alt={cat.title1}
                         className="w-20 h-12 object-cover rounded-md"
                       />
                     </td>
-                    <td className="px-6 py-4 font-semibold">{cat.title}</td>
+                    <td className="px-6 py-4 font-semibold">{cat.title1}</td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleCategoryToggle(categoryId)}
@@ -208,13 +208,13 @@ const CategoriesPage = () => {
                                 className="flex items-center space-x-4 bg-white shadow-sm p-3 rounded-md border"
                               >
                                 <img
-                                  src={music.image}
-                                  alt={music.title}
+                                  src={music.image_name1}
+                                  alt={music.title1}
                                   className="w-14 h-14 object-cover rounded"
                                 />
                                 <div>
                                   <p className="font-semibold text-gray-800">
-                                    {music.title}
+                                    {music.title1}
                                   </p>
                                   <p className="text-xs text-gray-500">
                                     Music ID: {music.id}

@@ -331,12 +331,12 @@ const AddMusicToPlaylistModal = ({ onClose, onUpdate }) => {
         const playlist = playlists.find(p => p.id == selectedPlaylistId);
         if (!doesMusicMatchPlaylist(music, playlist)) return false;
 
-        const titleMatch = music.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const titleMatch = music.title1.toLowerCase().includes(searchQuery.toLowerCase());
         const topic = topics.find(t => t.id === music.topic_id);
         const specialist = specialists.find(s => s.id === music.specialist_id);
 
-        const topicSearchMatch = topic && topic.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const specialistSearchMatch = specialist && specialist.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const topicSearchMatch = topic && topic.title1.toLowerCase().includes(searchQuery.toLowerCase());
+        const specialistSearchMatch = specialist && specialist.title1.toLowerCase().includes(searchQuery.toLowerCase());
 
         return (
             titleMatch ||
@@ -363,7 +363,7 @@ const AddMusicToPlaylistModal = ({ onClose, onUpdate }) => {
                         <option value="">-- Select --</option>
                         {playlists.map(p => (
                             <option key={p.id} value={p.id}>
-                                {p.title}
+                                {p.title1}
                             </option>
                         ))}
                     </select>
@@ -379,7 +379,7 @@ const AddMusicToPlaylistModal = ({ onClose, onUpdate }) => {
                                         const music = musicList.find(m => String(m.id) === String(id));
                                         return music ? (
                                             <li key={id} className="flex items-center justify-between">
-                                                <span>{music.title}</span>
+                                                <span>{music.title1}</span>
                                                 <button
                                                     onClick={() => handleRemoveMusic(id)}
                                                     className="text-red-500 hover:text-red-700"
@@ -409,9 +409,9 @@ const AddMusicToPlaylistModal = ({ onClose, onUpdate }) => {
                                         checked={selectedMusicIds.includes(music.id)}
                                         onChange={() => toggleMusicSelection(music.id)}
                                     />
-                                    <img src={music.image} alt={music.title} className="w-20 h-12 object-cover rounded" />
+                                    <img src={music.image_name1} alt={music.title1} className="w-20 h-12 object-cover rounded" />
                                     <div className="flex-1">
-                                        <p className="font-medium">{music.title}</p>
+                                        <p className="font-medium">{music.title1}</p>
                                         <audio src={music.sound} controls className="w-full" />
                                     </div>
                                 </div>

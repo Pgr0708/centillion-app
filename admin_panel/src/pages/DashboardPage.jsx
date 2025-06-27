@@ -65,7 +65,7 @@ const DashboardPage = () => {
           <h2 className="text-2xl font-semibold">Playlists</h2>
           <p className="text-lg mt-2">{counts.playlists} Items</p>
         </Link>
-                <Link to="/specialists" className="bg-pink-500 text-white rounded-lg p-6 shadow-lg hover:bg-pink-600 transition">
+        <Link to="/specialists" className="bg-pink-500 text-white rounded-lg p-6 shadow-lg hover:bg-pink-600 transition">
           <h2 className="text-2xl font-semibold">Specialists</h2>
           <p className="text-lg mt-2">{counts.specialists} Items</p>
         </Link>

@@ -100,7 +100,7 @@ const LibraryTable = () => {
 
 
   const filteredData = libraries
-    .filter((lib) => lib.title?.toLowerCase().includes(search.toLowerCase()))
+    .filter((lib) => lib.title1?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => a[sortKey]?.localeCompare(b[sortKey]));
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -147,7 +147,7 @@ const LibraryTable = () => {
             onChange={(e) => setSortKey(e.target.value)}
             className="p-2 border rounded"
           >
-            <option value="title">Sort by Title</option>
+            <option value="title1">Sort by Title</option>
             <option value="genre">Sort by Genre</option>
             <option value="created_at">Sort by Date</option>
           </select>
@@ -183,9 +183,9 @@ const LibraryTable = () => {
             console.log("+====================================================================="),
             <tr key={lib.id} className="hover:bg-gray-50">
               <td className="px-4 py-3 border">
-                <img src={lib.image} alt={lib.title} className="w-20 h-12 object-cover round-md" />
+                <img src={lib.image_name1} alt={lib.title1} className="w-20 h-12 object-cover round-md" />
               </td>
-              <td className="px-4 py-3 border font-medium">{lib.title}</td>
+              <td className="px-4 py-3 border font-medium">{lib.title1}</td>
               <td className="px-4 py-3 border">
                 <AudioPlayer sound={lib.sound} durationText={lib.duration} />
               </td>

@@ -5,15 +5,19 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
   const [playlists, setPlaylists] = useState([]);
   const [filteredPlaylists, setFilteredPlaylists] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile1, setSelectedFile1] = useState(null);
+    const [selectedFile2, setSelectedFile2] = useState(null);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+
+  const handleFileChange1 = (e) => {
+    setSelectedFile1(e.target.files[0]);
+  };
+  const handleFileChange2 = (e) => {
+    setSelectedFile2(e.target.files[0]);
   };
 
-
   const [form, setForm] = useState({
-    name: "",
+    title1: "",title2: "",
     profession: "",
     topic_id: "",
     description: "",
@@ -32,7 +36,7 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
   useEffect(() => {
     if (existingData) {
       setForm({
-        name: existingData.name || "",
+        title1: existingData.title1 || "",title2: existingData.title2 || "",
         profession: existingData.profession || "",
         topic_id: existingData.topic_id || "",
         description: existingData.description || "",
@@ -64,17 +68,23 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("title", form.name);
+    formData.append("title1", form.title1);formData.append("title2", form.title2);
     formData.append("profession", form.profession);
     formData.append("description", form.description);
     formData.append("topic_id", form.topic_id);
     formData.append("fav_playlist_id", form.fav_playlist_id);
 
-    if (selectedFile) {
-      formData.append("image", selectedFile);
-    } else if (existingData?.image) {
-      const filename = existingData.image.split("/").pop();
-      formData.append("existingImage", filename);
+    if (selectedFile1) {
+      formData.append("image_name1", selectedFile1);
+    } else if (existingData?.image1) {
+      const filename = existingData.image_name1.split("/").pop();
+      formData.append("existingImage1", filename);
+    }
+    if (selectedFile2) {
+      formData.append("image_name2", selectedFile2);
+    } else if (existingData?.image2) {
+      const filename = existingData.image_name2.split("/").pop();
+      formData.append("existingImage2", filename);
     }
 
     const url = existingData
@@ -93,7 +103,7 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
 
       if (result.success) {
         alert(existingData ? "Specialist updated successfully!" : "Specialist added successfully!");
-        onClose(result.updatedSpecialist || result.newSpecialist); // ← pass updated specialist back
+        onClose(); // ← pass updated specialist back
       } else {
         alert("Error submitting specialist");
       }
@@ -116,11 +126,20 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
 
       <input
         type="text"
-        name="name"
-        value={form.name}
+        name="title1"
+        value={form.title1}
         onChange={handleChange}
         placeholder="Name"
         required
+        className="w-full border mb-3 p-2 rounded"
+      />
+
+            <input
+        type="text"
+        name="title2"
+        value={form.title2}
+        onChange={handleChange}
+        placeholder="Name"
         className="w-full border mb-3 p-2 rounded"
       />
 
@@ -143,14 +162,14 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
         <option value="">Select Topic</option>
         {topics.map((t) => (
           <option key={t.id} value={t.id}>
-            {t.title}
+            {t.title1}
           </option>
         ))}
       </select>
 
-      {existingData?.image && !selectedFile && (
+      {existingData?.image_name1 && !selectedFile1 && (
         <img
-          src={existingData.image}
+          src={existingData.image_name1}
           alt="Preview"
           className="w-32 h-20 object-cover mb-3 rounded"
         />
@@ -158,9 +177,25 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
 
       <input
         type="file"
-        name="image"
+        name="image_name1"
             accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
-        onChange={handleFileChange}
+        onChange={handleFileChange1}
+        className="w-full border mb-3 p-2 rounded"
+      />
+
+            {existingData?.image_name2 && !selectedFile2 && (
+        <img
+          src={existingData.image_name2}
+          alt="Preview"
+          className="w-32 h-20 object-cover mb-3 rounded"
+        />
+      )}
+
+      <input
+        type="file"
+        name="image_name2"
+            accept="image/jpeg, image/png, image/webp, image/svg+xml, image/jpg"
+        onChange={handleFileChange2}
         className="w-full border mb-3 p-2 rounded"
       />
 
@@ -174,32 +209,6 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
 
       {existingData && form.topic_id && (
         <>
-          {/* <input
-            type="text"
-            placeholder="Search playlist"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border mb-2 p-2 rounded"
-          /> */}
-          {/* <select
-            name="fav_playlist_id"
-            value={form.fav_playlist_id || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              setForm((f) => ({
-                ...f,
-                fav_playlist_id: value === "" ? null : value,
-              }));
-            }}
-            className="w-full border mb-3 p-2 rounded"
-          >
-            <option value="">Select Favorite Playlist</option>
-            {displayedPlaylists.map((p) => (
-              <option key={p.playlist_id} value={p.playlist_id}>
-                {p.title}
-              </option>
-            ))}
-          </select> */}
           <select
             name="fav_playlist_id"
             value={form.fav_playlist_id?.toString() || ""}
@@ -215,7 +224,7 @@ const AddSpecialistForm = ({ existingData, onClose }) => {
             <option value="">Select Favorite Playlist</option>
             {displayedPlaylists.map((p) => (
               <option key={p.id} value={p.id.toString()}>
-                {p.title}
+                {p.title1}
               </option>
             ))}
           </select>

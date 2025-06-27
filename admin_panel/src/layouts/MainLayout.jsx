@@ -17,6 +17,6 @@ const MainLayout = ({ children }) => {
             </div>
             <ToastContainer />
         </div>
-    );
+    ); 
 };
 export default MainLayout;
